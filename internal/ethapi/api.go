@@ -2197,6 +2197,34 @@ func (s *TransactionAPI) Resend(ctx context.Context, sendArgs TransactionArgs, g
 	return common.Hash{}, fmt.Errorf("transaction %#x not found", matchTx.Hash())
 }
 
+func (s *TransactionAPI) SimulateTxs(ctx context.Context, inputs []hexutil.Bytes, height uint64) ([]hexutil.Bytes, error) {
+	txs := []*types.Transaction{}
+	for _, input := range inputs {
+		tx := new(types.Transaction)
+		if err := tx.UnmarshalBinary(input); err != nil {
+			return nil, err
+		}
+		txs = append(txs, tx)
+	}
+	results, err := s.b.SimulateTxs(ctx, txs, height)
+	if err != nil {
+		return nil, err
+	}
+
+	resp := []hexutil.Bytes{}
+	for _, result := range results {
+		if len(result.Revert()) > 0 {
+			return nil, newRevertError(result.Revert())
+		}
+		if result.Err != nil {
+			return nil, err
+		}
+		resp = append(resp, result.ReturnData)
+	}
+
+	return resp, nil
+}
+
 // DebugAPI is the collection of Ethereum APIs exposed over the debugging
 // namespace.
 type DebugAPI struct {

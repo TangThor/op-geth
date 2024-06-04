@@ -472,3 +472,7 @@ func (b *EthAPIBackend) HistoricalRPCService() *rpc.Client {
 func (b *EthAPIBackend) Genesis() *types.Block {
 	return b.eth.blockchain.Genesis()
 }
+
+func (b *EthAPIBackend) SimulateTxs(ctx context.Context, signedTxs []*types.Transaction, height uint64) ([]*core.ExecutionResult, error) {
+	return b.eth.miner.SimulateTx(signedTxs, height)
+}

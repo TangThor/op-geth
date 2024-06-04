@@ -252,3 +252,7 @@ func (miner *Miner) SubscribePendingLogs(ch chan<- []*types.Log) event.Subscript
 func (miner *Miner) BuildPayload(args *BuildPayloadArgs) (*Payload, error) {
 	return miner.worker.buildPayload(args)
 }
+
+func (miner *Miner) SimulateTx(txs []*types.Transaction, height uint64) ([]*core.ExecutionResult, error) {
+	return miner.worker.simulateTx(txs, height)
+}
